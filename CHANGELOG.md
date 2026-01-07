@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Fix per-character GUID migration so name-reuse starts fresh and existing character stats correctly migrate even if the GUID key was created earlier in the session.
+
 ## 0.1.1
 
 - Added extensive overlay customization (row selection + ordering, scale, opacity, text color).
@@ -12,7 +16,3 @@
 ## 0.1.0
 
 - Initial version.
-
-## 0.1.2
-
-- Fix per-character GUID migration so name-reuse starts fresh and existing character stats correctly migrate even if the GUID key was created earlier in the session.
