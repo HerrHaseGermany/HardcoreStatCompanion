@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2.2
+- add .gitignore
+- .DS_Store banished!
+
 ## 0.1.2.1
 - Fix changelog order of entries 
 
