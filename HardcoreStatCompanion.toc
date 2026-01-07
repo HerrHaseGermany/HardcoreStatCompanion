@@ -1,6 +1,6 @@
 ## Interface: 11508
 ## Title: Hardcore Stat Companion
-## Version: 0.1.2
+## Version: 1.1
 ## Author: HerrHaseGermany
 ## Notes: Standalone on-screen statistics overlay.
 ## SavedVariables: HardcoreStatCompanionDB

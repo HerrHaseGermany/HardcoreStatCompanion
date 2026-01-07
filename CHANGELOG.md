@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1
+--minor changes
+
 ## 1.0
 - final build
 
