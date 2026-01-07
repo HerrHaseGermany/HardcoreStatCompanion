@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0
+- final build
+
 ## 0.1.2.2
 - add .gitignore
 - .DS_Store banished!
