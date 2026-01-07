@@ -1,0 +1,16 @@
+## Interface: 11508
+## Title: Hardcore Stat Companion
+## Version: 0.1.2
+## Author: HerrHaseGermany
+## Notes: Standalone on-screen statistics overlay.
+## SavedVariables: HardcoreStatCompanionDB
+
+HardcoreStatCompanion.lua
+DB/Settings.lua
+DB/CharacterStats.lua
+Lib/FormatNumber.lua
+Lib/MakeFrameDraggable.lua
+UI/MainScreenStatistics.lua
+UI/StatisticsWindow.lua
+UI/OptionsPanel.lua
+UI/MinimapButton.lua
