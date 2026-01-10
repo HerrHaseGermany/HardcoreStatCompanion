@@ -109,11 +109,11 @@ function HSC_UI_StatisticsWindow_Initialize()
   rowsScroll:SetScrollChild(rowsContent)
 
   local rowsByKey = {
-    showMainStatisticsPanelAccountMaxLevel = { key = 'showMainStatisticsPanelAccountMaxLevel', label = 'Max level (account)' },
-    showMainStatisticsPanelClassMaxLevel = { key = 'showMainStatisticsPanelClassMaxLevel', label = 'Max level (current class)' },
+    showMainStatisticsPanelAccountMaxLevel = { key = 'showMainStatisticsPanelAccountMaxLevel', label = 'Max Level Account' },
+    showMainStatisticsPanelClassMaxLevel = { key = 'showMainStatisticsPanelClassMaxLevel', label = 'Max Level Class' },
     showMainStatisticsPanelLowestHealth = { key = 'showMainStatisticsPanelLowestHealth', label = 'Lowest Health' },
-    showMainStatisticsPanelThisLevel = { key = 'showMainStatisticsPanelThisLevel', label = 'Level Lowest' },
-    showMainStatisticsPanelSessionHealth = { key = 'showMainStatisticsPanelSessionHealth', label = 'Session Lowest' },
+    showMainStatisticsPanelThisLevel = { key = 'showMainStatisticsPanelThisLevel', label = 'Lowest Level Health' },
+    showMainStatisticsPanelSessionHealth = { key = 'showMainStatisticsPanelSessionHealth', label = 'Lowest Session Health' },
     showMainStatisticsPanelAccountTotalDeaths = { key = 'showMainStatisticsPanelAccountTotalDeaths', label = 'Account deaths (all characters)' },
     showMainStatisticsPanelPetDeaths = { key = 'showMainStatisticsPanelPetDeaths', label = 'Pet deaths' },
     showMainStatisticsPanelPartyMemberDeaths = { key = 'showMainStatisticsPanelPartyMemberDeaths', label = 'Party member deaths' },
@@ -130,7 +130,7 @@ function HSC_UI_StatisticsWindow_Initialize()
     showMainStatisticsPanelBandagesUsed = { key = 'showMainStatisticsPanelBandagesUsed', label = 'Bandages applied' },
     showMainStatisticsPanelTargetDummiesUsed = { key = 'showMainStatisticsPanelTargetDummiesUsed', label = 'Target dummies used' },
     showMainStatisticsPanelGrenadesUsed = { key = 'showMainStatisticsPanelGrenadesUsed', label = 'Grenades used' },
-    showMainStatisticsPanelCloseEscapes = { key = 'showMainStatisticsPanelCloseEscapes', label = 'Close escapes' },
+    showMainStatisticsPanelCloseEscapes = { key = 'showMainStatisticsPanelCloseEscapes', label = 'Close calls' },
     showMainStatisticsPanelDuelsTotal = { key = 'showMainStatisticsPanelDuelsTotal', label = 'Duels (total)' },
     showMainStatisticsPanelDuelsWon = { key = 'showMainStatisticsPanelDuelsWon', label = 'Duels (won)' },
     showMainStatisticsPanelDuelsLost = { key = 'showMainStatisticsPanelDuelsLost', label = 'Duels (lost)' },
@@ -140,7 +140,8 @@ function HSC_UI_StatisticsWindow_Initialize()
     showMainStatisticsPanelClassDeaths = { key = 'showMainStatisticsPanelClassDeaths', label = 'Class deaths (current class)' },
   }
 
-  local orderedKeys = (HSC_SETTINGS and HSC_SETTINGS.mainPanelRowOrder) or {}
+  local panelSettings = HSC_PANEL_SETTINGS or HSC_SETTINGS
+  local orderedKeys = (panelSettings and panelSettings.mainPanelRowOrder) or {}
   local last = nil
   local contentHeight = 0
   for _, key in ipairs(orderedKeys) do
@@ -152,9 +153,11 @@ function HSC_UI_StatisticsWindow_Initialize()
       else
         cb:SetPoint('TOPLEFT', rowsContent, 'TOPLEFT', 0, 0)
       end
-      cb:SetChecked(HSC_SETTINGS[row.key] and true or false)
+      cb:SetChecked(panelSettings and panelSettings[row.key] and true or false)
       cb:SetScript('OnClick', function(self)
-        HSC_SETTINGS[row.key] = self:GetChecked() and true or false
+        local panel = HSC_PANEL_SETTINGS or HSC_SETTINGS
+        if not panel then return end
+        panel[row.key] = self:GetChecked() and true or false
         RefreshOverlay()
       end)
       last = cb

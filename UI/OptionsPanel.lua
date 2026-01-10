@@ -70,7 +70,9 @@ local function ResetPanelDefaults()
   HSC_SETTINGS.statisticsBackgroundOpacity = 0.3
   HSC_SETTINGS.statisticsScale = 1.0
   HSC_SETTINGS.statisticsTextColor = { r = 1, g = 1, b = 1, a = 1 }
-  HSC_SETTINGS.onScreenPanelPosition = nil
+  if HSC_PANEL_SETTINGS then
+    HSC_PANEL_SETTINGS.onScreenPanelPosition = nil
+  end
 end
 
 local function ConfirmResetPanel(onConfirm)
@@ -491,11 +493,11 @@ local function CreateOptionsPanel()
   rowsScroll:SetScrollChild(rowsContent)
 
   local rowsByKey = {
-    showMainStatisticsPanelAccountMaxLevel = { key = 'showMainStatisticsPanelAccountMaxLevel', label = 'Max level (account)' },
-    showMainStatisticsPanelClassMaxLevel = { key = 'showMainStatisticsPanelClassMaxLevel', label = 'Max level (current class)' },
+    showMainStatisticsPanelAccountMaxLevel = { key = 'showMainStatisticsPanelAccountMaxLevel', label = 'Max Level Account' },
+    showMainStatisticsPanelClassMaxLevel = { key = 'showMainStatisticsPanelClassMaxLevel', label = 'Max Level Class' },
     showMainStatisticsPanelLowestHealth = { key = 'showMainStatisticsPanelLowestHealth', label = 'Lowest Health' },
-    showMainStatisticsPanelThisLevel = { key = 'showMainStatisticsPanelThisLevel', label = 'Level Lowest' },
-    showMainStatisticsPanelSessionHealth = { key = 'showMainStatisticsPanelSessionHealth', label = 'Session Lowest' },
+    showMainStatisticsPanelThisLevel = { key = 'showMainStatisticsPanelThisLevel', label = 'Lowest Level Health' },
+    showMainStatisticsPanelSessionHealth = { key = 'showMainStatisticsPanelSessionHealth', label = 'Lowest Session Health' },
     showMainStatisticsPanelPetDeaths = { key = 'showMainStatisticsPanelPetDeaths', label = 'Pet deaths' },
     showMainStatisticsPanelEnemiesSlain = { key = 'showMainStatisticsPanelEnemiesSlain', label = 'Enemies slain' },
     showMainStatisticsPanelElitesSlain = { key = 'showMainStatisticsPanelElitesSlain', label = 'Elites slain' },
@@ -511,7 +513,7 @@ local function CreateOptionsPanel()
     showMainStatisticsPanelTargetDummiesUsed = { key = 'showMainStatisticsPanelTargetDummiesUsed', label = 'Target dummies used' },
     showMainStatisticsPanelGrenadesUsed = { key = 'showMainStatisticsPanelGrenadesUsed', label = 'Grenades used' },
     showMainStatisticsPanelPartyMemberDeaths = { key = 'showMainStatisticsPanelPartyMemberDeaths', label = 'Party member deaths' },
-    showMainStatisticsPanelCloseEscapes = { key = 'showMainStatisticsPanelCloseEscapes', label = 'Close escapes' },
+    showMainStatisticsPanelCloseEscapes = { key = 'showMainStatisticsPanelCloseEscapes', label = 'Close calls' },
     showMainStatisticsPanelDuelsTotal = { key = 'showMainStatisticsPanelDuelsTotal', label = 'Duels (total)' },
     showMainStatisticsPanelDuelsWon = { key = 'showMainStatisticsPanelDuelsWon', label = 'Duels (won)' },
     showMainStatisticsPanelDuelsLost = { key = 'showMainStatisticsPanelDuelsLost', label = 'Duels (lost)' },
@@ -550,7 +552,8 @@ local function CreateOptionsPanel()
 
   local function BuildRows()
     ReleaseRows()
-    if not HSC_SETTINGS or type(HSC_SETTINGS.mainPanelRowOrder) ~= 'table' then return end
+    local panelSettings = HSC_PANEL_SETTINGS or HSC_SETTINGS
+    if not panelSettings or type(panelSettings.mainPanelRowOrder) ~= 'table' then return end
 
     local scrollWidth = rowsScroll:GetWidth() or 0
     local contentWidth = scrollWidth > 0 and (scrollWidth - 32) or 360
@@ -558,7 +561,7 @@ local function CreateOptionsPanel()
 
     local lastRow = nil
     local contentHeight = 0
-    for index, key in ipairs(HSC_SETTINGS.mainPanelRowOrder) do
+    for index, key in ipairs(panelSettings.mainPanelRowOrder) do
       local row = rowsByKey[key]
       if row then
         local rowFrame = CreateFrame('Frame', nil, rowsContent)
@@ -577,17 +580,17 @@ local function CreateOptionsPanel()
         up:SetEnabled(index > 1)
         up:SetShown(index > 1)
         up:SetScript('OnClick', function()
-          SwapArrayEntries(HSC_SETTINGS.mainPanelRowOrder, index, index - 1)
+          SwapArrayEntries(panelSettings.mainPanelRowOrder, index, index - 1)
           BuildRows()
           RefreshOverlay()
         end)
 
         local down = CreateArrowButton(rowFrame, 'down')
         down:SetPoint('LEFT', up, 'RIGHT', 6, 0)
-        down:SetEnabled(index < #HSC_SETTINGS.mainPanelRowOrder)
-        down:SetShown(index < #HSC_SETTINGS.mainPanelRowOrder)
+        down:SetEnabled(index < #panelSettings.mainPanelRowOrder)
+        down:SetShown(index < #panelSettings.mainPanelRowOrder)
         down:SetScript('OnClick', function()
-          SwapArrayEntries(HSC_SETTINGS.mainPanelRowOrder, index, index + 1)
+          SwapArrayEntries(panelSettings.mainPanelRowOrder, index, index + 1)
           BuildRows()
           RefreshOverlay()
         end)
@@ -596,10 +599,11 @@ local function CreateOptionsPanel()
         cb:SetPoint('LEFT', down, 'RIGHT', 8, 0)
         HideAllCheckboxText(cb)
         cb.settingKey = row.key
-        cb:SetChecked(HSC_SETTINGS[row.key] and true or false)
+        cb:SetChecked(panelSettings[row.key] and true or false)
         cb:SetScript('OnClick', function(self)
-          if not HSC_SETTINGS then return end
-          HSC_SETTINGS[self.settingKey] = self:GetChecked() and true or false
+          local panel = HSC_PANEL_SETTINGS or HSC_SETTINGS
+          if not panel then return end
+          panel[self.settingKey] = self:GetChecked() and true or false
           RefreshOverlay()
         end)
 

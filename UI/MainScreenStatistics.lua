@@ -9,7 +9,8 @@ function HSC_UI_MainScreenStatistics_Initialize()
   -- Position: center by default for new installs; persisted after the user drags the frame.
   local function ApplySavedPosition()
     statsFrame:ClearAllPoints()
-    local pos = HSC_SETTINGS and HSC_SETTINGS.onScreenPanelPosition
+    local panel = HSC_PANEL_SETTINGS or HSC_SETTINGS
+    local pos = panel and panel.onScreenPanelPosition
     if type(pos) == 'table' and pos.point and pos.relativePoint and pos.x and pos.y then
       statsFrame:SetPoint(pos.point, UIParent, pos.relativePoint, pos.x, pos.y)
     else
@@ -18,10 +19,11 @@ function HSC_UI_MainScreenStatistics_Initialize()
   end
 
   local function SavePosition()
-    if not HSC_SETTINGS then return end
+    local panel = HSC_PANEL_SETTINGS or HSC_SETTINGS
+    if not panel then return end
     local point, _, relativePoint, x, y = statsFrame:GetPoint(1)
     if not point or not relativePoint or not x or not y then return end
-    HSC_SETTINGS.onScreenPanelPosition = {
+    panel.onScreenPanelPosition = {
       point = point,
       relativePoint = relativePoint,
       x = x,
@@ -94,8 +96,8 @@ function HSC_UI_MainScreenStatistics_Initialize()
   end
 
   local rowsBySetting = {
-    showMainStatisticsPanelAccountMaxLevel = { setting = 'showMainStatisticsPanelAccountMaxLevel', label = 'Max level (acct):', accountKey = 'maxLevelOverall', format = 'num' },
-    showMainStatisticsPanelClassMaxLevel = { setting = 'showMainStatisticsPanelClassMaxLevel', label = 'Max level (class):', accountKey = 'maxLevelClass', format = 'num' },
+    showMainStatisticsPanelAccountMaxLevel = { setting = 'showMainStatisticsPanelAccountMaxLevel', label = 'Max Level Account:', accountKey = 'maxLevelOverall', format = 'num' },
+    showMainStatisticsPanelClassMaxLevel = { setting = 'showMainStatisticsPanelClassMaxLevel', label = 'Max Level Class:', accountKey = 'maxLevelClass', format = 'num' },
     showMainStatisticsPanelLowestHealth = { setting = 'showMainStatisticsPanelLowestHealth', label = 'Lowest Health:', statKey = 'lowestHealth', format = 'pct1' },
     showMainStatisticsPanelThisLevel = { setting = 'showMainStatisticsPanelThisLevel', label = 'Level Lowest:', statKey = 'lowestHealthThisLevel', format = 'pct1' },
     showMainStatisticsPanelSessionHealth = { setting = 'showMainStatisticsPanelSessionHealth', label = 'Session Lowest:', statKey = 'lowestHealthThisSession', format = 'pct1' },
@@ -114,7 +116,7 @@ function HSC_UI_MainScreenStatistics_Initialize()
     showMainStatisticsPanelTargetDummiesUsed = { setting = 'showMainStatisticsPanelTargetDummiesUsed', label = 'Dummies:', statKey = 'targetDummiesUsed', format = 'num' },
     showMainStatisticsPanelGrenadesUsed = { setting = 'showMainStatisticsPanelGrenadesUsed', label = 'Grenades:', statKey = 'grenadesUsed', format = 'num' },
     showMainStatisticsPanelPartyMemberDeaths = { setting = 'showMainStatisticsPanelPartyMemberDeaths', label = 'Party deaths:', statKey = 'partyMemberDeaths', format = 'num' },
-    showMainStatisticsPanelCloseEscapes = { setting = 'showMainStatisticsPanelCloseEscapes', label = 'Close escapes:', statKey = 'closeEscapes', format = 'num' },
+    showMainStatisticsPanelCloseEscapes = { setting = 'showMainStatisticsPanelCloseEscapes', label = 'Close calls:', statKey = 'closeEscapes', format = 'num' },
     showMainStatisticsPanelDuelsTotal = { setting = 'showMainStatisticsPanelDuelsTotal', label = 'Duels:', statKey = 'duelsTotal', format = 'num' },
     showMainStatisticsPanelDuelsWon = { setting = 'showMainStatisticsPanelDuelsWon', label = 'Duels won:', statKey = 'duelsWon', format = 'num' },
     showMainStatisticsPanelDuelsLost = { setting = 'showMainStatisticsPanelDuelsLost', label = 'Duels lost:', statKey = 'duelsLost', format = 'num' },
@@ -128,10 +130,11 @@ function HSC_UI_MainScreenStatistics_Initialize()
   local statsElements = {}
   local lastOrderSignature = nil
   local function ComputeOrderSignature()
-    if not HSC_SETTINGS or type(HSC_SETTINGS.mainPanelRowOrder) ~= 'table' then
+    local panel = HSC_PANEL_SETTINGS or HSC_SETTINGS
+    if not panel or type(panel.mainPanelRowOrder) ~= 'table' then
       return nil
     end
-    return table.concat(HSC_SETTINGS.mainPanelRowOrder, '|')
+    return table.concat(panel.mainPanelRowOrder, '|')
   end
 
   local function BuildElements()
@@ -141,7 +144,8 @@ function HSC_UI_MainScreenStatistics_Initialize()
     end
     statsElements = {}
 
-    local order = (HSC_SETTINGS and HSC_SETTINGS.mainPanelRowOrder) or {}
+    local panel = HSC_PANEL_SETTINGS or HSC_SETTINGS
+    local order = (panel and panel.mainPanelRowOrder) or {}
     for _, settingKey in ipairs(order) do
       local row = rowsBySetting[settingKey]
       if row then
@@ -207,11 +211,12 @@ function HSC_UI_MainScreenStatistics_Initialize()
   end
 
   local function UpdateRowVisibility()
+    local panel = HSC_PANEL_SETTINGS or HSC_SETTINGS
     local yOffset = -5
     local visibleRows = 0
 
     for _, element in ipairs(statsElements) do
-      local isVisible = (HSC_SETTINGS and HSC_SETTINGS[element.setting]) or false
+      local isVisible = (panel and panel[element.setting]) or false
 
       if isVisible then
         element.label:ClearAllPoints()
