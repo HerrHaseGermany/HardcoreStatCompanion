@@ -14,11 +14,11 @@ Hardcore Stat Companion is a WoW Classic Era addon that tracks Hardcore-focused 
 - Account-wide tracking:
   - Total deaths (all characters)
   - Deaths for current class
-  - Max level (account) and max level (current class)
+  - Max Level Account and Max Level Class
 - Combat/stat tracking (best-effort within Classic constraints):
   - Tagged kill credit and classification (elite/rare/world boss/dungeon boss) using cached unit data
   - Consumable usage (healing/mana potions, bandages, grenades, target dummies) with localized matching
-  - Close escapes heuristic
+  - Close call heuristic
   - Jumps heuristic
   - Map opened count
 

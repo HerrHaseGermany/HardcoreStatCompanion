@@ -1,7 +1,18 @@
+# Coming up
+
+## TODO Lowest Health of level resets on wrong occations
+## TODO Work on Tamperproveness, Timestamps for inital setup and possible reset function with Timestamp
+
 # Changelog
 
+## 1.1
+- Save Position of Panel per Character
+- Save Shown and Order of Stats per Character
+- Renamed stat labels (Close Call, Max Level Account, Max Level Class).
+- Renamed stat labbls in Options
+
 ## 1.0.1
---minor changes
+- minor changes
 
 ## 1.0
 - final build
