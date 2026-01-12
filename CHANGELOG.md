@@ -1,9 +1,7 @@
-# Coming up
-
-## TODO Lowest Health of level resets on wrong occations
-## TODO Work on Tamperproveness, Timestamps for inital setup and possible reset function with Timestamp
-
 # Changelog
+
+## 1.1.1
+- Fixed Panel live update issue
 
 ## 1.1
 - Save Position of Panel per Character
@@ -40,3 +38,12 @@
 ## 0.1.0
 
 - Initial version.
+
+
+# Coming up
+## TODO Working on Tamperproveness, Timestamps for inital setup and possible reset function with Timestamp
+
+
+# Known Issues
+
+## TODO Lowest Level Health random resets happend, need to find why.

@@ -274,6 +274,8 @@ function HSC_UI_MainScreenStatistics_Initialize()
     local signature = ComputeOrderSignature()
     if signature ~= lastOrderSignature then
       BuildElements()
+      UpdateStatistics()
+      ApplyTextColor()
     end
     UpdateRowVisibility()
   end
