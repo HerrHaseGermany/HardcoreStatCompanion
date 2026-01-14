@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.2
+- fixed instance version
+
 ## 1.1.1
 - Fixed Panel live update issue
 
