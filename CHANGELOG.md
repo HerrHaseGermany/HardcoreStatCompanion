@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.3
+- Lowest level health now resets only on level-up; lowest session health resets on logout (fresh after login).
+- Bandages applied now counts only when using bandages (no longer counts crafting).
+
 ## 1.1.2
 - fixed instance version
 

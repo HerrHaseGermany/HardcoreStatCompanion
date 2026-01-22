@@ -403,13 +403,37 @@ end
 
 -- Spell/item-use interpretation based on localized spell names.
 -- Called from both UNIT_SPELLCAST_SUCCEEDED and relevant combat log events.
-local function HandleSpellcastSucceeded(unit, spellName)
-  if unit ~= 'player' then return end
-  if not spellName then return end
+local BANDAGE_USE_SPELL_IDS = {
+  [746] = true,   -- Linen Bandage
+  [1159] = true,  -- Heavy Linen Bandage
+  [3267] = true,  -- Wool Bandage
+  [3268] = true,  -- Heavy Wool Bandage
+  [7928] = true,  -- Silk Bandage
+  [7929] = true,  -- Heavy Silk Bandage
+  [10838] = true, -- Mageweave Bandage
+  [10839] = true, -- Heavy Mageweave Bandage
+  [18608] = true, -- Runecloth Bandage
+  [18610] = true, -- Heavy Runecloth Bandage
+}
 
+local function HandleSpellcastSucceeded(unit, spellId, spellName)
+  if unit ~= 'player' then return end
+  if not spellId and not spellName then return end
+
+  local now = GetTime and GetTime() or 0
+
+  local id = tonumber(spellId)
+  if id and BANDAGE_USE_SPELL_IDS[id] then
+    if now - (state.lastBandageAt or 0) > 1.5 then
+      state.lastBandageAt = now
+      stats:IncrementStat('bandagesApplied', 1)
+    end
+    return
+  end
+
+  if not spellName then return end
   local name = tostring(spellName):lower()
   local normalized = name:gsub("[%s%p]", "")
-  local now = GetTime and GetTime() or 0
 
   local function ContainsAny(haystack, needles)
     for _, needle in ipairs(needles) do
@@ -431,21 +455,14 @@ local function HandleSpellcastSucceeded(unit, spellName)
     end
     return
   end
-  if isPotion and isMana then
-    stats:IncrementStat('manaPotionsUsed', 1)
-    return
-  end
-  if ContainsAny(name, { 'bandage', 'verband', 'erste hilfe' }) then
-    if now - (state.lastBandageAt or 0) > 1.5 then
-      state.lastBandageAt = now
-      stats:IncrementStat('bandagesApplied', 1)
-    end
-    return
-  end
-  if ContainsAny(name, { 'target dummy', 'zielattrappe', 'attrappe' }) then
-    stats:IncrementStat('targetDummiesUsed', 1)
-    return
-  end
+	  if isPotion and isMana then
+	    stats:IncrementStat('manaPotionsUsed', 1)
+	    return
+	  end
+	  if ContainsAny(name, { 'target dummy', 'zielattrappe', 'attrappe' }) then
+	    stats:IncrementStat('targetDummiesUsed', 1)
+	    return
+	  end
   if ContainsAny(name, { 'grenade', 'granate' }) then
     stats:IncrementStat('grenadesUsed', 1)
     return
@@ -456,7 +473,9 @@ end
 local function HandleCombatLog()
   local _, subEvent,
     _, sourceGUID, _, sourceFlags,
-    _, destGUID = CombatLogGetCurrentEventInfo()
+    _, destGUID,
+    _, _, _,
+    spellId, spellName = CombatLogGetCurrentEventInfo()
 
   if subEvent == 'PARTY_KILL' then
     stats:IncrementStat('enemiesSlain', 1)
@@ -506,9 +525,8 @@ local function HandleCombatLog()
   if not (isPlayerSource or isPetSource) then return end
 
   if (subEvent == 'SPELL_CAST_SUCCESS' or subEvent == 'SPELL_AURA_APPLIED' or subEvent == 'SPELL_AURA_REFRESH') and isPlayerSource then
-    local spellName = select(13, CombatLogGetCurrentEventInfo())
     if spellName then
-      HandleSpellcastSucceeded('player', spellName)
+      HandleSpellcastSucceeded('player', spellId, spellName)
 
       local name = tostring(spellName):lower()
       local normalized = name:gsub("[%s%p]", "")
@@ -588,8 +606,6 @@ local function OnEvent(_, event, ...)
     -- Migrate name-based character key -> GUID-based key once GUID is available.
     stats:_MigrateLegacyCharacterKey()
 
-    stats:UpdateStat('lowestHealthThisSession', 100)
-    stats:UpdateStat('lowestHealthThisLevel', 100)
     UpdateLowestHealth()
     stats:UpdateAccountMaxLevels(UnitLevel('player'))
     UpdatePartyCache()
@@ -614,6 +630,8 @@ local function OnEvent(_, event, ...)
     stats:UpdateStat('lowestHealthThisLevel', 100)
     local newLevel = ...
     stats:UpdateAccountMaxLevels(newLevel)
+  elseif event == 'PLAYER_LOGOUT' then
+    stats:UpdateStat('lowestHealthThisSession', 100)
   elseif event == 'PLAYER_DEAD' then
     stats:IncrementAccountStat('totalDeaths', 1)
     stats:IncrementAccountClassDeath()
@@ -622,7 +640,7 @@ local function OnEvent(_, event, ...)
   elseif event == 'UNIT_SPELLCAST_SUCCEEDED' then
     local unit, _, spellId = ...
     local name = GetSpellInfo(spellId)
-    HandleSpellcastSucceeded(unit, name)
+    HandleSpellcastSucceeded(unit, spellId, name)
   elseif event == 'GROUP_ROSTER_UPDATE' then
     UpdatePartyCache()
   elseif event == 'UNIT_PET' then
@@ -647,6 +665,7 @@ eventFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 eventFrame:RegisterEvent('UNIT_HEALTH')
 eventFrame:RegisterEvent('UNIT_MAXHEALTH')
 eventFrame:RegisterEvent('PLAYER_LEVEL_UP')
+eventFrame:RegisterEvent('PLAYER_LOGOUT')
 eventFrame:RegisterEvent('PLAYER_DEAD')
 eventFrame:RegisterEvent('COMBAT_LOG_EVENT_UNFILTERED')
 eventFrame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
